@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:property-placeholder location="classpath:conf/jdbc.properties"/>
+
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+          destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driver}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="initialSize" value="${connect.pool.initialSize}"/>
+        <property name="maxActive" value="${connect.pool.maxActive}"/>
+        <property name="maxIdle" value="${connect.pool.maxIdle}"/>
+        <property name="minIdle" value="${connect.pool.minIdle}"/>
+        <!-- 设置在自动回收超时连接的时候打印连接的超时错误 -->
+        <!--<property name="logAbandoned" value="${connect.pool.logAbandoned}"/>-->
+        <!-- 设置自动回收超时连接 -->
+        <!--<property name="removeAbandoned" value="${connect.pool.removeAbandoned}"/>-->
+        <!-- 自动回收超时时间(以秒数为单位) -->
+        <property name="removeAbandonedTimeout" value="${connect.pool.removeAbandonedTimeout}"/>
+        <!-- 超时等待时间以毫秒为单位 -->
+        <property name="maxWait" value="${connect.pool.maxWait}"/>
+    </bean>
+
+    <!-- mybatis文件配置，扫描所有mapper文件 -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="configLocation" value="classpath:conf/mybatis/mybatis-config.xml"/>
+        <!--<property name="typeAliasesPackage" value="com.test.entity"/>-->
+        <property name="mapperLocations" value="classpath*:Mapper/*.xml"/>
+    </bean>
+
+    <!-- 4.配置扫描Dao接口包，动态实现Dao接口，注入到spring容器中 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!-- 注入sqlSessionFactory -->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+        <!-- 给出需要扫描Dao接口包 -->
+        <property name="basePackage" value="com.jmtang.dao" />
+    </bean>
+</beans>
